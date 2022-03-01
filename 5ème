@@ -1,0 +1,83 @@
+
+ /* Ce programme allume une LED RGB cathodes communes en fonction de la distance mesurée 
+  par le capteur US HC-SR04, les valeurs sont affichées dans le moniteur série
+*/
+#include <LiquidCrystal_I2C.h>  // Bibliothèque de l'ecran lcd
+LiquidCrystal_I2C lcd(0x27, 20, 4); // Definition des parametres de l'ecran lcd
+
+int echo = 3; // broche echo du capteur US HC-SR04
+int trig = 2; // broche trig du capteur US HC-SR04
+int echo1 = 9; // broche echo du capteur US HC-SR04
+int trig1 = 8; // broche trig du capteur US HC-SR04
+int ledR = 5; // broche de la LED Rouge
+int ledG = 6; // broche de la LED Verte
+int ledB = 7; // broche de la LED Bleue
+int buzzer=12;
+float lecture_echo = 0; // variable sur 4 octets mesure de distance
+float cm = 0;// variable sur 4 octets pour la conversion en cm
+float cm1 = 0;// variable sur 4 octets pour la conversion en cm
+
+void setup()  // setup est déroulé une seule fois après la remise à zéro
+{
+  lcd.init(); // initialisation de l'afficheur
+lcd.setCursor(0,0);
+lcd.print("Projet Techno 5e");
+delay(1000);
+lcd.backlight(); // active le rétro-éclairage
+lcd.setCursor(0, 1); // se positionner à la première ligne
+lcd.print("Dist:");  // Afficher le mot 'carte'
+  //lcd.setCursor(13,1);  // se positionner à la deuxième ligne
+//lcd.print(" Cm");
+  pinMode(ledR, OUTPUT); // la broche led (3) est initialisée en sortie    
+  pinMode(ledG, OUTPUT); // la broche led (5) est initialisée en sortie
+  pinMode(ledB, OUTPUT); // la broche led (6) est initialisée en sortie
+  pinMode(trig, OUTPUT); // la broche trig est initialisée en sortie
+  pinMode(buzzer, OUTPUT);// broche 12 comme sortie du Pin
+  digitalWrite(trig, LOW); // met un niveau logique , LOW (BAS) sur la broche trig
+  pinMode(echo, INPUT);  // la broche echo est initialisée en entree
+  Serial.begin(9600);  // initialisation de la liaison série à 115200 bauds
+}
+
+void loop() // loop est déroulé indéfiniment
+{
+  digitalWrite(ledR,0); // valeur 0 sur la LED B
+  digitalWrite(ledG,0); // valeur 0 sur la LED G
+  digitalWrite(ledB,0); // valeur 0 sur la LED B
+  digitalWrite(trig, HIGH); // met un niveau logique , HIGH (HAUT) sur la broche trig
+  digitalWrite(trig1, HIGH);
+  delayMicroseconds(10); // attente pendant 10 millisecondes
+  digitalWrite(trig, LOW);
+  digitalWrite(trig1, LOW);// met un niveau logique , LOW (BAS) sur la broche trig.
+   //  lit la durée du niveau HAUT appliqué sur la broche echo
+  cm = pulseIn(echo, HIGH) / 60.0; // conversion de la distance en cm
+  cm1=pulseIn(echo, HIGH)/60;
+  Serial.print("Distance(cm) : "); // affiche le message : "Distance en cm" sur le moniteur série
+  Serial.println(cm); // affiche la mesure en cm avec retour à la ligne
+
+ lcd.setCursor(8,1);  // se positionner à la deuxième ligne
+lcd.print(cm);
+
+delay(200);
+  
+  if (cm < 10) {
+    digitalWrite(ledB,1);// si mesure < 10 => LED = Rouge
+    tone(buzzer, 600);
+  }
+  else
+   {
+   if (cm < 30) // si mesure < 30 => LED = Orange
+   {
+     digitalWrite(ledR,LOW);
+     digitalWrite(ledG, HIGH);
+      tone(buzzer,1000);
+   }
+   else // si mesure >= 30 => LED = Verte
+   {
+     digitalWrite(ledR,1);
+     digitalWrite(ledG,0);
+     digitalWrite(ledB,0);
+     noTone(12);
+   }
+  }
+    delay(1000); //attente pendant 1 seconde.
+}
