@@ -1,0 +1,73 @@
+#include <LiquidCrystal_I2C.h> 
+int trig=6;
+int echo=7;
+int ledR=3;
+int ledG=4;
+int ledB=5;
+float distance;
+LiquidCrystal_I2C lcd(0x27, 20, 4); // ligne 8
+Serial.begin(
+
+void setup()
+{
+lcd.init(); // initialisation de l'afficheur
+lcd.setCursor(0,0);
+lcd.print("Projet techno 5e");
+delay(1000);
+
+lcd.backlight(); // active le rétro-éclairage
+lcd.setCursor(0, 1); // se positionner à la première ligne
+lcd.print("Dist:");  // Afficher le mot 'carte'
+lcd.setCursor(13,1);  // se positionner à la deuxième ligne
+lcd.print(" Cm");
+Serial.begin(9600);
+pinMode(trig, OUTPUT);
+pinMode(echo, INPUT);
+}
+void loop()
+{
+// Eteindre toutes les leds
+ digitalWrite(ledR,0); // valeur 0 sur la LED B
+  digitalWrite(ledG,0); // valeur 0 sur la LED G
+  digitalWrite(ledB,0); // valeur 0 sur la LED B
+  
+  //Debut de la mesure
+digitalWrite(trig, LOW);
+delayMicroseconds(2);
+digitalWrite(trig, HIGH);
+delayMicroseconds(10);
+digitalWrite(trig, LOW);
+
+distance= pulseIn(echo, HIGH) / 60.0;
+
+lcd.setCursor(8,1);  // se positionner à la deuxième ligne
+lcd.print(distance);
+delay(500);
+// Afficher le mot 'Arduino'
+
+//Programmation de l'alarme:
+Serial.print("Distance en cm : "); // affiche le message : "Distance en cm" sur le moniteur série
+  Serial.println(distance); // affiche la mesure en cm avec retour à la ligne
+  if (distance < 10) {
+    digitalWrite(ledB,1);// si mesure < 10 => LED = Rouge
+    tone(buzzer, 600);
+  }
+  else
+   {
+   if (distance < 30) // si mesure < 30 => LED = Orange
+   {
+     digitalWrite(ledR,LOW);
+     digitalWrite(ledG, HIGH);
+      tone(buzzer,1000);
+   }
+   else // si mesure >= 30 => LED = Verte
+   {
+     digitalWrite(ledR,1);
+     digitalWrite(ledG,0);
+     digitalWrite(ledB,0);
+     noTone(12);
+   }
+  }
+    delay(1000); //attente pendant 1 seconde.
+}
+}
