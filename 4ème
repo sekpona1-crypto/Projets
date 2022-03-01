@@ -1,0 +1,99 @@
+#include <Servo.h> 
+
+  // Definition des servo moteurs pour le controle de l'axe X et Y
+Servo Moteur_X; 
+Servo Moteur_Y; 
+
+int Pos=90;  // Variable de position du servo, de 0 à 180° 
+
+int Gauche; // Variables de valeur des photorésistances 
+int Droite;
+int Haut;
+int Bas;
+ 
+int entreePhotoGauche = A1; // Photorésistances sur A0 et A1 
+int entreePhotoDroite = A0; 
+int entreePhotoHaut = A2; // Photorésistances sur A2 et A1 
+int entreePhotoBas = A3; 
+int ponderation=12; 
+
+
+void setup() 
+{ 
+ Serial.begin(9600);  // Monoteur série 
+ Moteur_X.attach(11); // Servo moteur 1 sur pin 11 
+ Moteur_Y.attach(9); // Servo moteur 2 sur pin 9 
+  
+ Moteur_X.write(Pos);//Position intiale des moteurs a 90 degré
+  Moteur_Y.write(Pos);
+} 
+
+void loop() 
+{ 
+
+ Gauche = analogRead(entreePhotoGauche); 
+ Droite = analogRead(entreePhotoDroite);
+ Haut = analogRead(entreePhotoHaut); 
+ Bas = analogRead(entreePhotoBas); 
+  // Si la luminosité générale n'est pas suffisante on le replace à sa position de //départ.  
+  // la nuit il sera en position pour le matin 
+  Serial.print("Vers ou aller sur l'axe x?");
+ if ( Droite  <  Gauche) 
+ { 
+  Serial.println(" La plaque solaire doit se tourner encore vers la Gauche");
+  Pos=Pos+ponderation;
+  Moteur_X.write(Pos);
+  
+     //Verification des capteurs haut et bas
+              Serial.print("Vers ou aller sur l'axe Y?");
+               if ( Haut  <  Bas) 
+           { 
+            Serial.println(" La plaque solaire doit se tourner encore vers le Bas");
+            Pos=Pos+ponderation;
+            Moteur_Y.write(Pos);
+           } 
+           else  
+           { 
+           Serial.println(" La plaque solaire doit se tourner encore vers la Haut");
+            Pos=Pos-ponderation;
+            Moteur_Y.write(Pos);
+           } 
+            
+  
+ } 
+ else  
+ { 
+ Serial.println(" La plaque solaire doit se tourner encore vers la Gauche");
+  Pos=Pos-ponderation;
+  Moteur_Y.write(Pos);
+
+    Serial.print("Vers ou aller sur l'axe Y?");
+               if ( Haut  <  Bas) 
+           { 
+            Serial.println(" La plaque solaire doit se tourner encore vers le Bas");
+            Pos=Pos+ponderation;
+            Moteur_Y.write(Pos);
+           } 
+           else  
+           { 
+           Serial.println(" La plaque solaire doit se tourner encore vers la Haut");
+            Pos=Pos-ponderation;
+            Moteur_Y.write(Pos);
+           } 
+            
+  
+ } 
+ // Affichage sur Moniteur Série 
+ Serial.print( "Gauche >   "); 
+ Serial.print(Droite); 
+ Serial.print( " | "); 
+ Serial.print(Gauche); 
+ Serial.println( "   < Droite"); 
+  Serial.print( "Haut >   "); 
+ Serial.print(Bas); 
+ Serial.print( " | "); 
+ Serial.print(Haut); 
+ Serial.println( "   < Bas"); 
+// on attends 150 ms avant la prochaine boucle 
+delay(500); 
+}
