@@ -1,0 +1,43 @@
+#include "IRremote.h"
+
+// Numéro du pin sortie du récepteur 
+long int res_val;
+const int receiver = 2; 
+
+int LED1=13;
+
+// Déclaration d'un objet IRrecv
+IRrecv irrecv(receiver);           
+decode_results results;            
+
+void setup()  {
+  Serial.begin(9600);
+  // Init du récepteur 
+  Serial.println("Code hexadecimal");
+   pinMode(LED1, OUTPUT);
+  irrecv.enableIRIn();
+  
+}
+
+void loop()  
+{
+  // Lecture de la télécommande 
+  if (irrecv.decode(&results))
+  {
+    // Récupération du code   
+    res_val = results.value;
+
+     //Affichage du code
+     Serial.println(res_val);
+    // Commande de la charge 
+     
+    // Réception de la nouvelle valeur
+    irrecv.resume();
+  }  
+  if (res_val==1512102437){
+    digitalWrite(LED1, HIGH);
+  }
+  else{
+    digitalWrite(LED1, LOW);
+  }
+}
